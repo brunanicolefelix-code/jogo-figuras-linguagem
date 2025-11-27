@@ -132,13 +132,6 @@
             cursor: not-allowed;
         }
 
-        .player-name-display {
-            color: #d4af37;
-            font-size: 0.9em;
-            margin-top: 10px;
-            text-align: center;
-        }
-
         /* Rooms Selection */
         .rooms-section {
             display: grid;
@@ -336,7 +329,6 @@
             font-weight: bold;
         }
 
-        .input-group input,
         .input-group textarea {
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid #8b7355;
@@ -345,23 +337,18 @@
             border-radius: 5px;
             font-family: 'Georgia', serif;
             font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
         }
 
-        .input-group input::placeholder,
         .input-group textarea::placeholder {
             color: #8b7355;
         }
 
-        .input-group input:focus,
         .input-group textarea:focus {
             outline: none;
             border-color: #d4af37;
             box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-        }
-
-        .input-group textarea {
-            resize: vertical;
-            min-height: 100px;
         }
 
         .submit-button {
@@ -445,11 +432,6 @@
         .status-incorrect {
             background: #5a1a1a;
             color: #ff6b6b;
-        }
-
-        .status-pending {
-            background: #3d2817;
-            color: #d4af37;
         }
 
         .history-item-phrase {
@@ -879,6 +861,13 @@
 
             try {
                 // Chamar Gemini API para corrigir
+                const prompt = `Você é um especialista em figuras de linguagem. Analise se a seguinte frase usa corretamente a figura de linguagem "${currentFigura}".
+
+Frase: "${frase}"
+
+Responda APENAS com um JSON válido (sem markdown, sem código blocks):
+{"correto": true ou false, "explicacao": "breve explicação", "sugestao": "sugestão ou vazio"}`;
+
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: {
@@ -887,46 +876,56 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Analise a seguinte frase para verificar se ela usa corretamente a figura de linguagem "${currentFigura}". 
-                                
-Frase: "${frase}"
-
-Responda em formato JSON com a seguinte estrutura:
-{
-  "correto": true ou false,
-  "explicacao": "explicação breve sobre por que está correto ou incorreto",
-  "sugestao": "sugestão de melhoria se necessário ou vazio se não houver"
-}
-
-Seja rigoroso na análise. A frase deve demonstrar claramente o uso da figura de linguagem solicitada.`
+                                text: prompt
                             }]
-                        }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 200
+                        }
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status}`);
+                    const errorData = await response.json();
+                    console.error('Erro da API:', errorData);
+                    throw new Error(`Erro ${response.status}: ${JSON.stringify(errorData)}`);
                 }
 
                 const data = await response.json();
-                let resultado = { correto: false, explicacao: "Erro na análise", sugestao: "" };
+                let resultado = { correto: false, explicacao: "Análise concluída", sugestao: "" };
 
-                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                    const text = data.candidates[0].content.parts[0].text;
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+                    const text = data.candidates[0].content.parts[0].text.trim();
+                    console.log('Resposta do Gemini:', text);
+                    
                     try {
+                        // Tenta fazer parse direto
+                        resultado = JSON.parse(text);
+                    } catch (e) {
+                        // Se falhar, tenta extrair JSON do texto
                         const jsonMatch = text.match(/\{[\s\S]*\}/);
                         if (jsonMatch) {
-                            resultado = JSON.parse(jsonMatch[0]);
+                            try {
+                                resultado = JSON.parse(jsonMatch[0]);
+                            } catch (e2) {
+                                console.error('Erro ao fazer parse:', e2);
+                                resultado = {
+                                    correto: text.toLowerCase().includes('correto') || text.toLowerCase().includes('sim'),
+                                    explicacao: text.substring(0, 150),
+                                    sugestao: ""
+                                };
+                            }
                         }
-                    } catch (e) {
-                        console.error('Erro ao fazer parse do JSON:', e);
-                        resultado = {
-                            correto: false,
-                            explicacao: text.substring(0, 200),
-                            sugestao: ""
-                        };
                     }
                 }
+
+                // Garantir que resultado tem as propriedades necessárias
+                resultado = {
+                    correto: resultado.correto === true,
+                    explicacao: resultado.explicacao || "Análise concluída",
+                    sugestao: resultado.sugestao || ""
+                };
 
                 // Calcular pontos
                 const pontos = resultado.correto ? 10 : 0;
@@ -938,8 +937,8 @@ Seja rigoroso na análise. A frase deve demonstrar claramente o uso da figura de
                     figura: currentFigura,
                     palavra: currentPalavra,
                     correto: resultado.correto,
-                    explicacao: resultado.explicacao || "Análise concluída",
-                    sugestao: resultado.sugestao || "",
+                    explicacao: resultado.explicacao,
+                    sugestao: resultado.sugestao,
                     pontos: pontos,
                     sala: currentRoom,
                     timestamp: new Date().toISOString()
@@ -962,7 +961,7 @@ Seja rigoroso na análise. A frase deve demonstrar claramente o uso da figura de
                 }, 500);
 
             } catch (error) {
-                console.error('Erro:', error);
+                console.error('Erro completo:', error);
                 statusDiv.innerHTML = '<div class="status-message status-error">Erro ao analisar a frase. Tente novamente!</div>';
             } finally {
                 submitBtn.disabled = false;
