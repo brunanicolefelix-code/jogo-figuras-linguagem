@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Figuras de Linguagem - Medieval</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e8d4b8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(180deg, #3d2817 0%, #2d1810 100%);
+            border-bottom: 3px solid #8b7355;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #c9a961;
+            font-size: 0.9em;
+        }
+
+        /* Main Container */
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 30px auto;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            background: linear-gradient(135deg, #3d2817 0%, #2d1810 100%);
+            border: 3px solid #8b7355;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-screen h2 {
+            color: #d4af37;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .login-form label {
+            color: #c9a961;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .login-form input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #8b7355;
+            color: #e8d4b8;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+        }
+
+        .login-form input::placeholder {
+            color: #8b7355;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #2d5016 0%, #1a3009 100%);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            background: linear-gradient(135deg, #3d6b1f 0%, #2d5016 100%);
+            transform: scale(1.02);
+        }
+
+        .login-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .player-name-display {
+            color: #d4af37;
+            font-size: 0.9em;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Rooms Selection */
+        .rooms-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .rooms-section.hidden {
+            display: none;
+        }
+
+        .room-card {
+            background: linear-gradient(135deg, #3d2817 0%, #2d1810 100%);
+            border: 3px solid #8b7355;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            border-color: #d4af37;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+        }
+
+        .room-card h2 {
+            color: #d4af37;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .room-card p {
+            color: #c9a961;
+            margin-bottom: 15px;
+        }
+
+        .room-card button {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .room-card button:hover {
+            background: linear-gradient(135deg, #e8c547 0%, #c9a961 100%);
+            transform: scale(1.05);
+        }
+
+        /* Game Area */
+        .game-area {
+            display: none;
+            background: linear-gradient(135deg, #3d2817 0%, #2d1810 100%);
+            border: 3px solid #8b7355;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .game-header h2 {
+            color: #d4af37;
+            font-size: 2em;
+        }
+
+        .player-info {
+            color: #c9a961;
+            font-size: 0.95em;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+            color: #e8d4b8;
+            border: 2px solid #d4af37;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%);
+        }
+
+        /* Game Content */
+        .game-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .game-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Buttons Section */
+        .buttons-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #8b7355;
+        }
+
+        .buttons-section h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .button-group button {
+            flex: 1;
+            background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+            color: #1a1a1a;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .button-group button:hover {
+            background: linear-gradient(135deg, #e8c547 0%, #c9a961 100%);
+            transform: scale(1.02);
+        }
+
+        .display-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #d4af37;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #8b7355;
+        }
+
+        .input-section h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            color: #c9a961;
+            font-weight: bold;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #8b7355;
+            color: #e8d4b8;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+        }
+
+        .input-group input::placeholder,
+        .input-group textarea::placeholder {
+            color: #8b7355;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #2d5016 0%, #1a3009 100%);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #3d6b1f 0%, #2d5016 100%);
+            transform: scale(1.02);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* History Section */
+        .history-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #8b7355;
+            grid-column: 1 / -1;
+        }
+
+        .history-section h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #d4af37;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-item-name {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        .history-item-status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-correct {
+            background: #2d5016;
+            color: #7cfc00;
+        }
+
+        .status-incorrect {
+            background: #5a1a1a;
+            color: #ff6b6b;
+        }
+
+        .status-pending {
+            background: #3d2817;
+            color: #d4af37;
+        }
+
+        .history-item-phrase {
+            color: #e8d4b8;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .history-item-correction {
+            color: #c9a961;
+            font-size: 0.95em;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 8px;
+        }
+
+        .history-item-points {
+            color: #d4af37;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        /* Ranking Section */
+        .ranking-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #8b7355;
+            grid-column: 1 / -1;
+        }
+
+        .ranking-section h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table thead {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .ranking-table th {
+            color: #d4af37;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #8b7355;
+        }
+
+        .ranking-table td {
+            color: #e8d4b8;
+            padding: 12px;
+            border-bottom: 1px solid #8b7355;
+        }
+
+        .ranking-table tr:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .ranking-position {
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(180deg, #2d1810 0%, #1a0f0a 100%);
+            border-top: 3px solid #8b7355;
+            padding: 20px;
+            text-align: center;
+            margin-top: auto;
+            color: #c9a961;
+            font-size: 0.9em;
+        }
+
+        /* Loading and Status */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #8b7355;
+            border-top-color: #d4af37;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: #2d5016;
+            color: #7cfc00;
+        }
+
+        .status-error {
+            background: #5a1a1a;
+            color: #ff6b6b;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .game-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .game-header h2 {
+                font-size: 1.5em;
+            }
+
+            .ranking-table {
+                font-size: 0.9em;
+            }
+
+            .ranking-table th,
+            .ranking-table td {
+                padding: 8px;
+            }
+
+            .login-screen {
+                min-height: 300px;
+                padding: 30px 20px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: #8b7355;
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚔️ Jogo de Figuras de Linguagem ⚔️</h1>
+        <p>Crie frases épicas com figuras de linguagem</p>
+    </header>
+
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <h2>🏰 Bem-vindo ao Jogo! 🏰</h2>
+            <form class="login-form" onsubmit="iniciarJogo(event)">
+                <label for="playerName">Digite seu nome de jogador:</label>
+                <input 
+                    type="text" 
+                    id="playerName" 
+                    placeholder="Seu nome aqui..." 
+                    maxlength="50"
+                    required
+                    autofocus
+                >
+                <button type="submit" class="login-button">Entrar no Jogo</button>
+            </form>
+        </div>
+
+        <!-- Rooms Selection -->
+        <div id="roomsSection" class="rooms-section hidden">
+            <div class="player-info" style="grid-column: 1 / -1; text-align: center; margin-bottom: 20px;">
+                <span id="playerNameDisplay"></span>
+                <button class="back-button" onclick="mudarJogador()" style="margin-left: 20px;">Trocar Jogador</button>
+            </div>
+            <div class="room-card">
+                <h2>🏰 Sala 1</h2>
+                <p>Castelo do Conhecimento</p>
+                <button onclick="enterRoom(1)">Entrar</button>
+            </div>
+            <div class="room-card">
+                <h2>🏯 Sala 2</h2>
+                <p>Torre da Sabedoria</p>
+                <button onclick="enterRoom(2)">Entrar</button>
+            </div>
+            <div class="room-card">
+                <h2>🗿 Sala 3</h2>
+                <p>Fortaleza da Criatividade</p>
+                <button onclick="enterRoom(3)">Entrar</button>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div id="gameArea" class="game-area">
+            <div class="game-header">
+                <h2 id="roomTitle"></h2>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span class="player-info" id="gamePlayerInfo"></span>
+                    <button class="back-button" onclick="backToRooms()">← Voltar</button>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <!-- Left Column: Sorteios -->
+                <div class="game-column">
+                    <div class="buttons-section">
+                        <h3>🎲 Sorteios</h3>
+                        <div class="button-group">
+                            <button onclick="sortearPalavra()">Sortear Palavra</button>
+                            <button onclick="sortearFigura()">Sortear Figura</button>
+                        </div>
+                        <div class="display-box" id="palavraSorteada">Clique para sortear uma palavra</div>
+                        <div style="margin-top: 15px;"></div>
+                        <div class="display-box" id="figuraSorteada">Clique para sortear uma figura</div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Input -->
+                <div class="game-column">
+                    <div class="input-section">
+                        <h3>✍️ Sua Contribuição</h3>
+                        <div class="input-group">
+                            <label for="fraseUsuario">Sua Frase:</label>
+                            <textarea id="fraseUsuario" placeholder="Escreva uma frase usando a figura de linguagem sorteada..."></textarea>
+                        </div>
+                        <button class="submit-button" id="submitBtn" onclick="enviarFrase()">Enviar Frase</button>
+                        <div id="statusMessage"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="history-section">
+                <h3>📜 Histórico de Frases</h3>
+                <div class="history-list" id="historyList">
+                    <p style="color: #8b7355;">Nenhuma frase enviada ainda...</p>
+                </div>
+            </div>
+
+            <!-- Ranking Section -->
+            <div class="ranking-section">
+                <h3>🏆 Ranking da Sala</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Jogador</th>
+                            <th>Pontos</th>
+                            <th>Frases Corretas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #8b7355;">Nenhum jogador ainda...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Trabalho desenvolvido para a disciplina de Estilística do Texto - PUC Campinas</p>
+    </footer>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB18wCa-yEhMYQkxY8ZlBoRIvBS1OAmjqg",
+            authDomain: "estilistica.firebaseapp.com",
+            databaseURL: "https://estilistica-default-rtdb.firebaseio.com",
+            projectId: "estilistica",
+            storageBucket: "estilistica.appspot.com",
+            messagingSenderId: "622934874774",
+            appId: "1:622934874774:web:2ca073255bbf1b2d8f40b7",
+            measurementId: "G-KJVPBTNTRJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Gemini API Key
+        const GEMINI_API_KEY = "AIzaSyDoyY2y1ToC_qtvgCqtIQK4dH5jNzzNkSc";
+
+        // Figuras de Linguagem
+        const figurasLinguagem = [
+            "Metáfora",
+            "Metonímia",
+            "Sinédoque",
+            "Antítese",
+            "Paradoxo",
+            "Hipérbole",
+            "Ironia",
+            "Personificação",
+            "Aliteração",
+            "Assonância",
+            "Onomatopeia",
+            "Comparação",
+            "Catacrese",
+            "Oxímoro",
+            "Pleonasmo",
+            "Tautologia",
+            "Zeugma",
+            "Elipse",
+            "Anacoluto",
+            "Inversão"
+        ];
+
+        // Palavras para Sorteio
+        const palavras = [
+            "Coração", "Tempestade", "Luz", "Escuridão", "Fogo", "Gelo", "Vento", "Chuva",
+            "Montanha", "Rio", "Floresta", "Deserto", "Mar", "Céu", "Terra", "Ar",
+            "Amor", "Ódio", "Medo", "Esperança", "Raiva", "Tristeza", "Alegria", "Paz",
+            "Guerra", "Vitória", "Derrota", "Coragem", "Fraqueza", "Força", "Poder", "Glória",
+            "Sombra", "Espelho", "Ponte", "Porta", "Caminho", "Jornada", "Destino", "Sorte",
+            "Sonho", "Realidade", "Verdade", "Mentira", "Silêncio", "Grito", "Sussurro", "Eco"
+        ];
+
+        // Estado Global
+        let currentRoom = null;
+        let currentPalavra = null;
+        let currentFigura = null;
+        let playerName = null;
+
+        // Funções Públicas
+        window.iniciarJogo = function(event) {
+            event.preventDefault();
+            playerName = document.getElementById('playerName').value.trim();
+            
+            if (!playerName) {
+                alert('Por favor, digite seu nome!');
+                return;
+            }
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('roomsSection').classList.remove('hidden');
+            document.getElementById('playerNameDisplay').textContent = `👤 Jogador: ${playerName}`;
+        };
+
+        window.mudarJogador = function() {
+            playerName = null;
+            currentRoom = null;
+            currentPalavra = null;
+            currentFigura = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('roomsSection').classList.add('hidden');
+            document.getElementById('gameArea').classList.remove('active');
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerName').focus();
+        };
+
+        window.enterRoom = function(roomNumber) {
+            currentRoom = roomNumber;
+            document.getElementById('roomsSection').classList.add('hidden');
+            document.getElementById('gameArea').classList.add('active');
+            document.getElementById('roomTitle').textContent = `Sala ${roomNumber}`;
+            document.getElementById('gamePlayerInfo').textContent = `👤 ${playerName}`;
+            carregarHistorico();
+            carregarRanking();
+        };
+
+        window.backToRooms = function() {
+            currentRoom = null;
+            currentPalavra = null;
+            currentFigura = null;
+            document.getElementById('roomsSection').classList.remove('hidden');
+            document.getElementById('gameArea').classList.remove('active');
+            document.getElementById('fraseUsuario').value = '';
+            document.getElementById('statusMessage').innerHTML = '';
+            document.getElementById('palavraSorteada').textContent = 'Clique para sortear uma palavra';
+            document.getElementById('figuraSorteada').textContent = 'Clique para sortear uma figura';
+        };
+
+        window.sortearPalavra = function() {
+            currentPalavra = palavras[Math.floor(Math.random() * palavras.length)];
+            document.getElementById('palavraSorteada').textContent = `📝 ${currentPalavra}`;
+        };
+
+        window.sortearFigura = function() {
+            currentFigura = figurasLinguagem[Math.floor(Math.random() * figurasLinguagem.length)];
+            document.getElementById('figuraSorteada').textContent = `🎭 ${currentFigura}`;
+        };
+
+        window.enviarFrase = async function() {
+            const frase = document.getElementById('fraseUsuario').value.trim();
+            const statusDiv = document.getElementById('statusMessage');
+
+            if (!frase) {
+                statusDiv.innerHTML = '<div class="status-message status-error">Por favor, escreva uma frase!</div>';
+                return;
+            }
+
+            if (!currentFigura) {
+                statusDiv.innerHTML = '<div class="status-message status-error">Por favor, sorteie uma figura de linguagem!</div>';
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            statusDiv.innerHTML = '<div class="status-message" style="background: #3d2817; color: #d4af37;"><span class="loading"></span> Analisando sua frase...</div>';
+
+            try {
+                // Chamar Gemini API para corrigir
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Analise a seguinte frase para verificar se ela usa corretamente a figura de linguagem "${currentFigura}". 
+                                
+Frase: "${frase}"
+
+Responda em formato JSON com a seguinte estrutura:
+{
+  "correto": true ou false,
+  "explicacao": "explicação breve sobre por que está correto ou incorreto",
+  "sugestao": "sugestão de melhoria se necessário ou vazio se não houver"
+}
+
+Seja rigoroso na análise. A frase deve demonstrar claramente o uso da figura de linguagem solicitada.`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.status}`);
+                }
+
+                const data = await response.json();
+                let resultado = { correto: false, explicacao: "Erro na análise", sugestao: "" };
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    const text = data.candidates[0].content.parts[0].text;
+                    try {
+                        const jsonMatch = text.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            resultado = JSON.parse(jsonMatch[0]);
+                        }
+                    } catch (e) {
+                        console.error('Erro ao fazer parse do JSON:', e);
+                        resultado = {
+                            correto: false,
+                            explicacao: text.substring(0, 200),
+                            sugestao: ""
+                        };
+                    }
+                }
+
+                // Calcular pontos
+                const pontos = resultado.correto ? 10 : 0;
+
+                // Salvar no Firebase
+                const fraseData = {
+                    nome: playerName,
+                    frase: frase,
+                    figura: currentFigura,
+                    palavra: currentPalavra,
+                    correto: resultado.correto,
+                    explicacao: resultado.explicacao || "Análise concluída",
+                    sugestao: resultado.sugestao || "",
+                    pontos: pontos,
+                    sala: currentRoom,
+                    timestamp: new Date().toISOString()
+                };
+
+                const fraseRef = ref(database, `salas/sala${currentRoom}/frases`);
+                await push(fraseRef, fraseData);
+
+                // Atualizar ranking
+                await atualizarRanking(playerName, pontos);
+
+                // Limpar campos
+                document.getElementById('fraseUsuario').value = '';
+                statusDiv.innerHTML = `<div class="status-message status-success">✓ Frase enviada com sucesso! ${pontos > 0 ? `Você ganhou ${pontos} pontos!` : 'Tente novamente!'}</div>`;
+
+                // Recarregar histórico e ranking
+                setTimeout(() => {
+                    carregarHistorico();
+                    carregarRanking();
+                }, 500);
+
+            } catch (error) {
+                console.error('Erro:', error);
+                statusDiv.innerHTML = '<div class="status-message status-error">Erro ao analisar a frase. Tente novamente!</div>';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        };
+
+        async function atualizarRanking(nome, pontos) {
+            try {
+                const rankingRef = ref(database, `salas/sala${currentRoom}/ranking/${nome}`);
+                
+                // Ler dados atuais
+                const snapshot = await new Promise((resolve, reject) => {
+                    onValue(rankingRef, resolve, { onlyOnce: true }, reject);
+                });
+
+                const dadosAtuais = snapshot.val() || { pontos: 0, frases_corretas: 0 };
+                const novosPontos = dadosAtuais.pontos + pontos;
+                const novasFrasesCorretas = dadosAtuais.frases_corretas + (pontos > 0 ? 1 : 0);
+
+                const rankingData = {
+                    pontos: novosPontos,
+                    frases_corretas: novasFrasesCorretas,
+                    ultima_atualizacao: new Date().toISOString()
+                };
+
+                // Atualizar dados
+                await push(rankingRef.parent, rankingData);
+            } catch (error) {
+                console.error('Erro ao atualizar ranking:', error);
+            }
+        }
+
+        function carregarHistorico() {
+            try {
+                const historyRef = ref(database, `salas/sala${currentRoom}/frases`);
+                const historyQuery = query(historyRef, orderByChild('timestamp'), limitToLast(20));
+
+                onValue(historyQuery, (snapshot) => {
+                    const historyList = document.getElementById('historyList');
+                    const frases = [];
+
+                    snapshot.forEach((child) => {
+                        frases.unshift(child.val());
+                    });
+
+                    if (frases.length === 0) {
+                        historyList.innerHTML = '<p style="color: #8b7355;">Nenhuma frase enviada ainda...</p>';
+                        return;
+                    }
+
+                    historyList.innerHTML = frases.map((frase, index) => `
+                        <div class="history-item">
+                            <div class="history-item-header">
+                                <span class="history-item-name">${frase.nome}</span>
+                                <span class="history-item-status ${frase.correto ? 'status-correct' : 'status-incorrect'}">
+                                    ${frase.correto ? '✓ Correto' : '✗ Incorreto'}
+                                </span>
+                                <span class="history-item-points">${frase.pontos} pts</span>
+                            </div>
+                            <div style="color: #c9a961; font-size: 0.9em; margin-bottom: 8px;">
+                                <strong>Figura:</strong> ${frase.figura} | <strong>Palavra:</strong> ${frase.palavra || 'N/A'}
+                            </div>
+                            <div class="history-item-phrase">"${frase.frase}"</div>
+                            <div class="history-item-correction">
+                                <strong>Análise:</strong> ${frase.explicacao}
+                                ${frase.sugestao ? `<br><strong>Sugestão:</strong> ${frase.sugestao}` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                });
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+            }
+        }
+
+        function carregarRanking() {
+            try {
+                const rankingRef = ref(database, `salas/sala${currentRoom}/ranking`);
+                const rankingQuery = query(rankingRef, orderByChild('pontos'), limitToLast(10));
+
+                onValue(rankingQuery, (snapshot) => {
+                    const rankingBody = document.getElementById('rankingBody');
+                    const jogadores = [];
+
+                    snapshot.forEach((child) => {
+                        jogadores.unshift({
+                            nome: child.key,
+                            ...child.val()
+                        });
+                    });
+
+                    if (jogadores.length === 0) {
+                        rankingBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #8b7355;">Nenhum jogador ainda...</td></tr>';
+                        return;
+                    }
+
+                    rankingBody.innerHTML = jogadores.map((jogador, index) => `
+                        <tr>
+                            <td><span class="ranking-position">#${index + 1}</span></td>
+                            <td>${jogador.nome}</td>
+                            <td><strong>${jogador.pontos}</strong></td>
+                            <td>${jogador.frases_corretas}</td>
+                        </tr>
+                    `).join('');
+                });
+            } catch (error) {
+                console.error('Erro ao carregar ranking:', error);
+            }
+        }
+    </script>
+</body>
+</html>
